@@ -18,6 +18,7 @@ export default function GoatTracker({ user }: Props) {
   const [filteredGoats, setFilteredGoats] = useState<Goat[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
+  const [editingGoat, setEditingGoat] = useState<Goat | null>(null)
   const [filters, setFilters] = useState({
     tag: '',
     owner: '',
@@ -192,20 +193,33 @@ export default function GoatTracker({ user }: Props) {
             </div>
           ) : (
             filteredGoats.map((goat) => (
-              <GoatCard key={goat.id} goat={goat} onUpdate={fetchGoats} />
+              <GoatCard 
+                key={goat.id} 
+                goat={goat} 
+                onUpdate={fetchGoats}
+                onEdit={(goat) => {
+                  setEditingGoat(goat)
+                  setShowForm(true)
+                }}
+              />
             ))
           )}
         </div>
 
-        {/* Add Goat Form Modal */}
+        {/* Add/Edit Goat Form Modal */}
         {showForm && (
           <GoatForm
-            onClose={() => setShowForm(false)}
+            onClose={() => {
+              setShowForm(false)
+              setEditingGoat(null)
+            }}
             onSuccess={() => {
               setShowForm(false)
+              setEditingGoat(null)
               fetchGoats()
             }}
             userId={user.id}
+            editGoat={editingGoat || undefined}
           />
         )}
       </div>

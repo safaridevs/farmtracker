@@ -3,15 +3,16 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase'
 import { Goat } from '@/types/goat'
-import { Trash2, Eye, Calendar } from 'lucide-react'
+import { Trash2, Eye, Calendar, Edit } from 'lucide-react'
 import Image from 'next/image'
 
 interface Props {
   goat: Goat
   onUpdate: () => void
+  onEdit: (goat: Goat) => void
 }
 
-export default function GoatCard({ goat, onUpdate }: Props) {
+export default function GoatCard({ goat, onUpdate, onEdit }: Props) {
   const [showImageModal, setShowImageModal] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
   
@@ -108,7 +109,14 @@ export default function GoatCard({ goat, onUpdate }: Props) {
           </div>
 
           {/* Actions */}
-          <div className="mt-4 pt-4 border-t border-gray-100">
+          <div className="mt-4 pt-4 border-t border-gray-100 flex gap-3">
+            <button
+              onClick={() => onEdit(goat)}
+              className="text-blue-600 hover:text-blue-800 text-sm font-medium transition flex items-center gap-1"
+            >
+              <Edit size={14} />
+              Edit
+            </button>
             <button
               onClick={handleDelete}
               disabled={deleting}

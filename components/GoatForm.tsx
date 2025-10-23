@@ -3,18 +3,21 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase'
 import { X, Upload, Camera } from 'lucide-react'
+import { Goat } from '@/types/goat'
 
 interface Props {
   onClose: () => void
   onSuccess: () => void
   userId: string
+  editGoat?: Goat
 }
 
-export default function GoatForm({ onClose, onSuccess, userId }: Props) {
+export default function GoatForm({ onClose, onSuccess, userId, editGoat }: Props) {
+  const isEditing = !!editGoat
   const [formData, setFormData] = useState({
-    tagNumber: '',
-    ownerName: '',
-    gender: 'Male' as 'Male' | 'Female'
+    tagNumber: editGoat?.tag_number || '',
+    ownerName: editGoat?.owner_name || '',
+    gender: (editGoat?.gender || 'Male') as 'Male' | 'Female'
   })
   const [goatPhoto, setGoatPhoto] = useState<File | null>(null)
   const [tagPhoto, setTagPhoto] = useState<File | null>(null)
@@ -57,17 +60,23 @@ export default function GoatForm({ onClose, onSuccess, userId }: Props) {
         tagPhotoUrl = await uploadPhoto(tagPhoto, tagPath)
       }
 
-      // Insert goat record
-      const { error } = await supabase
-        .from('goats')
-        .insert({
-          tag_number: formData.tagNumber,
-          owner_name: formData.ownerName,
-          gender: formData.gender,
-          goat_photo_url: goatPhotoUrl,
-          tag_photo_url: tagPhotoUrl,
-          created_by: userId
-        })
+      // Insert or update goat record
+      const goatData = {
+        tag_number: formData.tagNumber,
+        owner_name: formData.ownerName,
+        gender: formData.gender,
+        goat_photo_url: goatPhotoUrl || editGoat?.goat_photo_url || '',
+        tag_photo_url: tagPhotoUrl || editGoat?.tag_photo_url || ''
+      }
+
+      const { error } = isEditing
+        ? await supabase
+            .from('goats')
+            .update(goatData)
+            .eq('id', editGoat!.id)
+        : await supabase
+            .from('goats')
+            .insert({ ...goatData, created_by: userId })
 
       if (error) throw error
       onSuccess()
@@ -83,7 +92,9 @@ export default function GoatForm({ onClose, onSuccess, userId }: Props) {
       <div className="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-green-700">Add New Goat</h2>
+            <h2 className="text-2xl font-bold text-green-700">
+              {isEditing ? 'Edit Goat' : 'Add New Goat'}
+            </h2>
             <button
               onClick={onClose}
               className="text-gray-500 hover:text-gray-700 transition"
@@ -195,7 +206,7 @@ export default function GoatForm({ onClose, onSuccess, userId }: Props) {
                 disabled={loading}
                 className="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 disabled:opacity-50 transition"
               >
-                {loading ? 'Adding...' : 'Add Goat'}
+                {loading ? (isEditing ? 'Updating...' : 'Adding...') : (isEditing ? 'Update Goat' : 'Add Goat')}
               </button>
             </div>
           </form>
