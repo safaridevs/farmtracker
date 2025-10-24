@@ -362,6 +362,7 @@ export default function GoatTracker({ user, userProfile }: Props) {
               fetchGoats()
             }}
             userId={user.id}
+            farmId={userProfile.farm_id}
             editGoat={editingGoat || undefined}
           />
         )}

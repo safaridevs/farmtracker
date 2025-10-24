@@ -1,6 +1,8 @@
 import { createServerClient } from '@/lib/supabase-server'
 import { redirect } from 'next/navigation'
 import GoatTracker from '@/components/GoatTracker'
+import FarmSetup from '@/components/FarmSetup'
+import DashboardWrapper from '@/components/DashboardWrapper'
 
 export default async function Dashboard() {
   const supabase = createServerClient()
@@ -14,30 +16,56 @@ export default async function Dashboard() {
   // Get or create user profile
   let { data: userProfile } = await supabase
     .from('user_profiles')
-    .select('*')
+    .select(`
+      *,
+      farm:farm_id(
+        id,
+        name,
+        description,
+        owner_id
+      )
+    `)
     .eq('id', session.user.id)
     .single()
 
-  // If no profile exists, create a default farm and profile
+  // If no profile exists, create one automatically
   if (!userProfile) {
-    const { data: newFarm } = await supabase.rpc('create_farm_and_profile', {
-      farm_name: `${session.user.email}'s Farm`,
-      user_full_name: session.user.user_metadata?.full_name || session.user.email
-    })
-
-    // Fetch the created profile
-    const { data: createdProfile } = await supabase
-      .from('user_profiles')
-      .select('*')
-      .eq('id', session.user.id)
-      .single()
+    // Get or create farm for user
+    const { data: farmId } = await supabase.rpc('get_or_create_farm_for_user')
     
-    userProfile = createdProfile
+    if (farmId) {
+      // Fetch the profile again
+      const { data: newProfile } = await supabase
+        .from('user_profiles')
+        .select(`
+          *,
+          farm:farm_id(
+            id,
+            name,
+            description,
+            owner_id
+          )
+        `)
+        .eq('id', session.user.id)
+        .single()
+      
+      userProfile = newProfile
+    }
   }
 
+  // Fallback: create minimal profile if still missing
   if (!userProfile) {
-    throw new Error('Failed to create user profile')
+    userProfile = {
+      id: session.user.id,
+      full_name: session.user.email,
+      role: 'owner' as const,
+      farm_id: '',
+      is_active: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      farm: null
+    }
   }
 
-  return <GoatTracker user={session.user} userProfile={userProfile} />
+  return <DashboardWrapper user={session.user} initialProfile={userProfile} />
 }
