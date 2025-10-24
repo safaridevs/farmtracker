@@ -9,13 +9,15 @@ import { Plus, Calendar, Baby, Heart } from 'lucide-react'
 interface Props {
   goats: Goat[]
   onUpdate: () => void
+  selectedGoat?: Goat
+  onClose?: () => void
 }
 
-export default function BreedingCard({ goats, onUpdate }: Props) {
+export default function BreedingCard({ goats, onUpdate, selectedGoat, onClose }: Props) {
   const [breedingRecords, setBreedingRecords] = useState<BreedingRecord[]>([])
-  const [showForm, setShowForm] = useState(false)
+  const [showForm, setShowForm] = useState(!!selectedGoat)
   const [formData, setFormData] = useState({
-    doeId: '',
+    doeId: selectedGoat?.id || '',
     buckId: '',
     breedingDate: new Date().toISOString().split('T')[0],
     expectedDueDate: '',
@@ -88,6 +90,7 @@ export default function BreedingCard({ goats, onUpdate }: Props) {
       })
       fetchBreedingRecords()
       onUpdate()
+      if (onClose) onClose()
     } catch (error: any) {
       alert('Error adding breeding record: ' + error.message)
     } finally {
@@ -283,7 +286,10 @@ export default function BreedingCard({ goats, onUpdate }: Props) {
                 <div className="flex gap-3">
                   <button
                     type="button"
-                    onClick={() => setShowForm(false)}
+                    onClick={() => {
+                      setShowForm(false)
+                      if (onClose) onClose()
+                    }}
                     className="flex-1 bg-gray-500 text-white py-2 rounded-lg hover:bg-gray-600"
                   >
                     Cancel

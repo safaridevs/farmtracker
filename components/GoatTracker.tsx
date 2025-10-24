@@ -11,6 +11,7 @@ import GoatForm from './GoatForm'
 import GoatCard from './GoatCard'
 import Analytics from './Analytics'
 import BreedingCard from './BreedingCard'
+import BreedingModal from './BreedingModal'
 
 interface Props {
   user: User
@@ -23,6 +24,7 @@ export default function GoatTracker({ user }: Props) {
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [editingGoat, setEditingGoat] = useState<Goat | null>(null)
+  const [breedingGoat, setBreedingGoat] = useState<Goat | null>(null)
   const [activeTab, setActiveTab] = useState<'goats' | 'analytics' | 'breeding'>('goats')
   const [filters, setFilters] = useState({
     tag: '',
@@ -264,7 +266,7 @@ export default function GoatTracker({ user }: Props) {
                       setEditingGoat(goat)
                       setShowForm(true)
                     }}
-                    onBreeding={() => setActiveTab('breeding')}
+                    onBreeding={(goat) => setBreedingGoat(goat)}
                     healthRecords={healthRecords.filter(r => r.goat_id === goat.id)}
                   />
                 ))
@@ -291,6 +293,19 @@ export default function GoatTracker({ user }: Props) {
             }}
             userId={user.id}
             editGoat={editingGoat || undefined}
+          />
+        )}
+        
+        {/* Breeding Modal */}
+        {breedingGoat && (
+          <BreedingModal
+            selectedGoat={breedingGoat}
+            goats={goats}
+            onClose={() => setBreedingGoat(null)}
+            onSuccess={() => {
+              fetchGoats()
+              fetchHealthRecords()
+            }}
           />
         )}
       </div>
