@@ -5,13 +5,15 @@ import { createClient } from '@/lib/supabase'
 import { Goat } from '@/types/goat'
 import { HealthRecord } from '@/types/health'
 import { User } from '@supabase/supabase-js'
-import { LogOut, Plus, Search, Filter, X, BarChart3, Heart, Baby } from 'lucide-react'
+import { LogOut, Plus, Search, Filter, X, BarChart3, Heart, Baby, Bell } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import GoatForm from './GoatForm'
 import GoatCard from './GoatCard'
 import Analytics from './Analytics'
 import BreedingCard from './BreedingCard'
 import BreedingModal from './BreedingModal'
+import NotificationBell from './NotificationBell'
+import NotificationDashboard from './NotificationDashboard'
 
 interface Props {
   user: User
@@ -25,7 +27,8 @@ export default function GoatTracker({ user }: Props) {
   const [showForm, setShowForm] = useState(false)
   const [editingGoat, setEditingGoat] = useState<Goat | null>(null)
   const [breedingGoat, setBreedingGoat] = useState<Goat | null>(null)
-  const [activeTab, setActiveTab] = useState<'goats' | 'analytics' | 'breeding'>('goats')
+  const [activeTab, setActiveTab] = useState<'goats' | 'analytics' | 'breeding' | 'notifications'>('goats')
+  const [breedingRecords, setBreedingRecords] = useState<any[]>([])
   const [filters, setFilters] = useState({
     tag: '',
     owner: '',
@@ -38,6 +41,7 @@ export default function GoatTracker({ user }: Props) {
   useEffect(() => {
     fetchGoats()
     fetchHealthRecords()
+    fetchBreedingRecords()
   }, [])
 
   useEffect(() => {
@@ -71,6 +75,24 @@ export default function GoatTracker({ user }: Props) {
       setHealthRecords(data || [])
     } catch (error) {
       console.error('Error fetching health records:', error)
+    }
+  }
+
+  const fetchBreedingRecords = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('breeding_records')
+        .select(`
+          *,
+          doe:doe_id(tag_number, owner_name),
+          buck:buck_id(tag_number, owner_name)
+        `)
+        .order('breeding_date', { ascending: false })
+      
+      if (error) throw error
+      setBreedingRecords(data || [])
+    } catch (error) {
+      console.error('Error fetching breeding records:', error)
     }
   }
 
@@ -126,7 +148,12 @@ export default function GoatTracker({ user }: Props) {
               <h1 className="text-3xl font-bold text-green-700">🐐 Farm Tracker</h1>
               <p className="text-gray-600">Welcome back, {user.email}</p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
+              <NotificationBell 
+                goats={goats} 
+                healthRecords={healthRecords} 
+                breedingRecords={breedingRecords}
+              />
               <button
                 onClick={() => setShowForm(true)}
                 className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition flex items-center gap-2"
@@ -167,6 +194,17 @@ export default function GoatTracker({ user }: Props) {
             >
               <Baby size={16} />
               Breeding
+            </button>
+            <button
+              onClick={() => setActiveTab('notifications')}
+              className={`px-4 py-2 rounded-lg transition flex items-center gap-2 ${
+                activeTab === 'notifications' 
+                  ? 'bg-green-600 text-white' 
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              <Bell size={16} />
+              Notifications
             </button>
             <button
               onClick={() => setActiveTab('analytics')}
@@ -275,6 +313,12 @@ export default function GoatTracker({ user }: Props) {
           </>
         ) : activeTab === 'breeding' ? (
           <BreedingCard goats={goats} onUpdate={fetchGoats} />
+        ) : activeTab === 'notifications' ? (
+          <NotificationDashboard 
+            goats={goats} 
+            healthRecords={healthRecords} 
+            breedingRecords={breedingRecords}
+          />
         ) : (
           <Analytics goats={goats} healthRecords={healthRecords} />
         )}
@@ -305,6 +349,7 @@ export default function GoatTracker({ user }: Props) {
             onSuccess={() => {
               fetchGoats()
               fetchHealthRecords()
+              fetchBreedingRecords()
             }}
           />
         )}
