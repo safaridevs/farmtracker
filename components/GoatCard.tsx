@@ -3,17 +3,21 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase'
 import { Goat } from '@/types/goat'
-import { Trash2, Eye, Calendar, Edit } from 'lucide-react'
+import { HealthRecord } from '@/types/health'
+import { Trash2, Eye, Calendar, Edit, Heart, Activity } from 'lucide-react'
 import Image from 'next/image'
+import HealthCard from './HealthCard'
 
 interface Props {
   goat: Goat
   onUpdate: () => void
   onEdit: (goat: Goat) => void
+  healthRecords: HealthRecord[]
 }
 
-export default function GoatCard({ goat, onUpdate, onEdit }: Props) {
+export default function GoatCard({ goat, onUpdate, onEdit, healthRecords }: Props) {
   const [showImageModal, setShowImageModal] = useState<string | null>(null)
+  const [showHealthCard, setShowHealthCard] = useState(false)
   const [deleting, setDeleting] = useState(false)
   
   const supabase = createClient()
@@ -102,6 +106,26 @@ export default function GoatCard({ goat, onUpdate, onEdit }: Props) {
               </span>
             </p>
             
+            {goat.health_status && (
+              <p className="text-gray-600">
+                <span className="font-semibold">Health:</span>
+                <span className={`ml-1 px-2 py-1 rounded-full text-xs ${
+                  goat.health_status === 'Healthy' ? 'bg-green-100 text-green-800' :
+                  goat.health_status === 'Sick' ? 'bg-red-100 text-red-800' :
+                  goat.health_status === 'Under Treatment' ? 'bg-yellow-100 text-yellow-800' :
+                  'bg-orange-100 text-orange-800'
+                }`}>
+                  {goat.health_status}
+                </span>
+              </p>
+            )}
+            
+            {goat.weight && (
+              <p className="text-gray-600">
+                <span className="font-semibold">Weight:</span> {goat.weight} lbs
+              </p>
+            )}
+            
             <div className="flex items-center text-xs text-gray-400 mt-3">
               <Calendar size={12} className="mr-1" />
               Added: {formatDate(goat.created_at)}
@@ -109,7 +133,14 @@ export default function GoatCard({ goat, onUpdate, onEdit }: Props) {
           </div>
 
           {/* Actions */}
-          <div className="mt-4 pt-4 border-t border-gray-100 flex gap-3">
+          <div className="mt-4 pt-4 border-t border-gray-100 flex gap-3 flex-wrap">
+            <button
+              onClick={() => setShowHealthCard(true)}
+              className="text-green-600 hover:text-green-800 text-sm font-medium transition flex items-center gap-1"
+            >
+              <Activity size={14} />
+              Health ({healthRecords.length})
+            </button>
             <button
               onClick={() => onEdit(goat)}
               className="text-blue-600 hover:text-blue-800 text-sm font-medium transition flex items-center gap-1"
@@ -143,6 +174,30 @@ export default function GoatCard({ goat, onUpdate, onEdit }: Props) {
               height={600}
               className="max-w-full max-h-full object-contain rounded-lg"
             />
+          </div>
+        </div>
+      )}
+      
+      {/* Health Card Modal */}
+      {showHealthCard && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
+            <div className="p-4 border-b border-gray-200 flex justify-between items-center">
+              <h3 className="text-lg font-semibold">Health Records - {goat.tag_number}</h3>
+              <button
+                onClick={() => setShowHealthCard(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ×
+              </button>
+            </div>
+            <div className="p-4 overflow-y-auto">
+              <HealthCard 
+                goatId={goat.id} 
+                records={healthRecords} 
+                onUpdate={onUpdate}
+              />
+            </div>
           </div>
         </div>
       )}
