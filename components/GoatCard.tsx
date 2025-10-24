@@ -126,6 +126,19 @@ export default function GoatCard({ goat, onUpdate, onEdit, healthRecords }: Prop
               </p>
             )}
             
+            {goat.breeding_status && goat.breeding_status !== 'Available' && (
+              <p className="text-gray-600">
+                <span className="font-semibold">Breeding:</span>
+                <span className={`ml-1 px-2 py-1 rounded-full text-xs ${
+                  goat.breeding_status === 'Pregnant' ? 'bg-pink-100 text-pink-800' :
+                  goat.breeding_status === 'Nursing' ? 'bg-blue-100 text-blue-800' :
+                  'bg-gray-100 text-gray-800'
+                }`}>
+                  {goat.breeding_status}
+                </span>
+              </p>
+            )}
+            
             <div className="flex items-center text-xs text-gray-400 mt-3">
               <Calendar size={12} className="mr-1" />
               Added: {formatDate(goat.created_at)}

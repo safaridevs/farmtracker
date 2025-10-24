@@ -2,7 +2,7 @@
 
 import { Goat } from '@/types/goat'
 import { HealthRecord } from '@/types/health'
-import { BarChart3, PieChart, TrendingUp, Heart, Calendar, DollarSign } from 'lucide-react'
+import { BarChart3, PieChart, TrendingUp, Heart, Calendar, DollarSign, Baby } from 'lucide-react'
 
 interface Props {
   goats: Goat[]
@@ -17,6 +17,10 @@ export default function Analytics({ goats, healthRecords }: Props) {
   const healthyCount = goats.filter(g => g.health_status === 'Healthy' || !g.health_status).length
   const sickCount = goats.filter(g => g.health_status === 'Sick').length
   const treatmentCount = goats.filter(g => g.health_status === 'Under Treatment').length
+  
+  const pregnantCount = goats.filter(g => g.breeding_status === 'Pregnant').length
+  const nursingCount = goats.filter(g => g.breeding_status === 'Nursing').length
+  const availableForBreeding = goats.filter(g => g.breeding_status === 'Available' || !g.breeding_status).length
   
   const totalHealthCosts = healthRecords.reduce((sum, record) => sum + (record.cost || 0), 0)
   const recentRecords = healthRecords.filter(r => 
@@ -46,7 +50,7 @@ export default function Analytics({ goats, healthRecords }: Props) {
       </div>
 
       {/* Overview Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         <StatCard
           icon={PieChart}
           title="Total Goats"
@@ -69,6 +73,14 @@ export default function Analytics({ goats, healthRecords }: Props) {
           value={avgWeight > 0 ? `${avgWeight.toFixed(1)} lbs` : 'N/A'}
           subtitle={`${goats.filter(g => g.weight).length} recorded`}
           color="#8B5CF6"
+        />
+        
+        <StatCard
+          icon={Baby}
+          title="Breeding Status"
+          value={`${pregnantCount + nursingCount}/${totalGoats}`}
+          subtitle={`${pregnantCount} pregnant, ${nursingCount} nursing`}
+          color="#EC4899"
         />
         
         <StatCard

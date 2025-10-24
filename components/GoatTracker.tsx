@@ -5,11 +5,12 @@ import { createClient } from '@/lib/supabase'
 import { Goat } from '@/types/goat'
 import { HealthRecord } from '@/types/health'
 import { User } from '@supabase/supabase-js'
-import { LogOut, Plus, Search, Filter, X, BarChart3, Heart } from 'lucide-react'
+import { LogOut, Plus, Search, Filter, X, BarChart3, Heart, Baby } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import GoatForm from './GoatForm'
 import GoatCard from './GoatCard'
 import Analytics from './Analytics'
+import BreedingCard from './BreedingCard'
 
 interface Props {
   user: User
@@ -22,7 +23,7 @@ export default function GoatTracker({ user }: Props) {
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [editingGoat, setEditingGoat] = useState<Goat | null>(null)
-  const [activeTab, setActiveTab] = useState<'goats' | 'analytics'>('goats')
+  const [activeTab, setActiveTab] = useState<'goats' | 'analytics' | 'breeding'>('goats')
   const [filters, setFilters] = useState({
     tag: '',
     owner: '',
@@ -155,6 +156,17 @@ export default function GoatTracker({ user }: Props) {
               Goats
             </button>
             <button
+              onClick={() => setActiveTab('breeding')}
+              className={`px-4 py-2 rounded-lg transition flex items-center gap-2 ${
+                activeTab === 'breeding' 
+                  ? 'bg-green-600 text-white' 
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              <Baby size={16} />
+              Breeding
+            </button>
+            <button
               onClick={() => setActiveTab('analytics')}
               className={`px-4 py-2 rounded-lg transition flex items-center gap-2 ${
                 activeTab === 'analytics' 
@@ -258,6 +270,8 @@ export default function GoatTracker({ user }: Props) {
               )}
             </div>
           </>
+        ) : activeTab === 'breeding' ? (
+          <BreedingCard goats={goats} onUpdate={fetchGoats} />
         ) : (
           <Analytics goats={goats} healthRecords={healthRecords} />
         )}
