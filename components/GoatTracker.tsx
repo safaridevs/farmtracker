@@ -4,8 +4,10 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase'
 import { Goat } from '@/types/goat'
 import { HealthRecord } from '@/types/health'
+import { UserProfile } from '@/types/user'
+import { canPerformAction } from '@/lib/permissions'
 import { User } from '@supabase/supabase-js'
-import { LogOut, Plus, Search, Filter, X, BarChart3, Heart, Baby, Bell } from 'lucide-react'
+import { LogOut, Plus, Search, Filter, X, BarChart3, Heart, Baby, Bell, Users } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import GoatForm from './GoatForm'
 import GoatCard from './GoatCard'
@@ -14,12 +16,14 @@ import BreedingCard from './BreedingCard'
 import BreedingModal from './BreedingModal'
 import NotificationBell from './NotificationBell'
 import NotificationDashboard from './NotificationDashboard'
+import UserManagement from './UserManagement'
 
 interface Props {
   user: User
+  userProfile: UserProfile
 }
 
-export default function GoatTracker({ user }: Props) {
+export default function GoatTracker({ user, userProfile }: Props) {
   const [goats, setGoats] = useState<Goat[]>([])
   const [filteredGoats, setFilteredGoats] = useState<Goat[]>([])
   const [healthRecords, setHealthRecords] = useState<HealthRecord[]>([])
@@ -27,7 +31,7 @@ export default function GoatTracker({ user }: Props) {
   const [showForm, setShowForm] = useState(false)
   const [editingGoat, setEditingGoat] = useState<Goat | null>(null)
   const [breedingGoat, setBreedingGoat] = useState<Goat | null>(null)
-  const [activeTab, setActiveTab] = useState<'goats' | 'analytics' | 'breeding' | 'notifications'>('goats')
+  const [activeTab, setActiveTab] = useState<'goats' | 'analytics' | 'breeding' | 'notifications' | 'users'>('goats')
   const [breedingRecords, setBreedingRecords] = useState<any[]>([])
   const [filters, setFilters] = useState({
     tag: '',
@@ -206,6 +210,19 @@ export default function GoatTracker({ user }: Props) {
               <Bell size={16} />
               Notifications
             </button>
+            {canPerformAction(userProfile.role, 'canManageUsers') && (
+              <button
+                onClick={() => setActiveTab('users')}
+                className={`px-4 py-2 rounded-lg transition flex items-center gap-2 ${
+                  activeTab === 'users' 
+                    ? 'bg-green-600 text-white' 
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                <Users size={16} />
+                Users
+              </button>
+            )}
             <button
               onClick={() => setActiveTab('analytics')}
               className={`px-4 py-2 rounded-lg transition flex items-center gap-2 ${
@@ -318,6 +335,15 @@ export default function GoatTracker({ user }: Props) {
             goats={goats} 
             healthRecords={healthRecords} 
             breedingRecords={breedingRecords}
+          />
+        ) : activeTab === 'users' ? (
+          <UserManagement 
+            currentUser={userProfile} 
+            onUpdate={() => {
+              fetchGoats()
+              fetchHealthRecords()
+              fetchBreedingRecords()
+            }}
           />
         ) : (
           <Analytics goats={goats} healthRecords={healthRecords} />
