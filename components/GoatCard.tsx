@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase'
 import { Goat } from '@/types/goat'
 import { HealthRecord } from '@/types/health'
-import { Trash2, Eye, Calendar, Edit, Heart, Activity } from 'lucide-react'
+import { Trash2, Eye, Calendar, Edit, Heart, Activity, Baby } from 'lucide-react'
 import Image from 'next/image'
 import HealthCard from './HealthCard'
 
@@ -12,10 +12,11 @@ interface Props {
   goat: Goat
   onUpdate: () => void
   onEdit: (goat: Goat) => void
+  onBreeding: (goat: Goat) => void
   healthRecords: HealthRecord[]
 }
 
-export default function GoatCard({ goat, onUpdate, onEdit, healthRecords }: Props) {
+export default function GoatCard({ goat, onUpdate, onEdit, onBreeding, healthRecords }: Props) {
   const [showImageModal, setShowImageModal] = useState<string | null>(null)
   const [showHealthCard, setShowHealthCard] = useState(false)
   const [deleting, setDeleting] = useState(false)
@@ -153,6 +154,13 @@ export default function GoatCard({ goat, onUpdate, onEdit, healthRecords }: Prop
             >
               <Activity size={14} />
               Health ({healthRecords.length})
+            </button>
+            <button
+              onClick={() => onBreeding(goat)}
+              className="text-pink-600 hover:text-pink-800 text-sm font-medium transition flex items-center gap-1"
+            >
+              <Baby size={14} />
+              Breeding
             </button>
             <button
               onClick={() => onEdit(goat)}

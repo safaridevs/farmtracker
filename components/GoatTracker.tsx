@@ -264,6 +264,7 @@ export default function GoatTracker({ user }: Props) {
                       setEditingGoat(goat)
                       setShowForm(true)
                     }}
+                    onBreeding={() => setActiveTab('breeding')}
                     healthRecords={healthRecords.filter(r => r.goat_id === goat.id)}
                   />
                 ))
