@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase'
 import { Goat } from '@/types/goat'
 import { HealthRecord } from '@/types/health'
 import { UserProfile } from '@/types/user'
-import { canPerformAction } from '@/lib/permissions'
+
 import { User } from '@supabase/supabase-js'
 import { LogOut, Plus, Search, Filter, X, BarChart3, Heart, Baby, Bell, Users } from 'lucide-react'
 import { useRouter } from 'next/navigation'
