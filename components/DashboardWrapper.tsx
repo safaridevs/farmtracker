@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { UserProfile } from '@/types/user'
 import GoatTracker from './GoatTracker'
-import FarmSetup from './FarmSetup'
+import PendingApproval from './PendingApproval'
 
 interface Props {
   user: any
@@ -13,15 +13,20 @@ interface Props {
 export default function DashboardWrapper({ user, initialProfile }: Props) {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(initialProfile)
 
-  // If no profile or farm, show setup
-  if (!userProfile || !userProfile.farm_id) {
-    return (
-      <FarmSetup 
-        user={user} 
-        onComplete={(profile) => setUserProfile(profile)} 
-      />
-    )
+  // Create default profile if none exists
+  const profile = userProfile || {
+    id: user.id,
+    full_name: user.email,
+    is_active: true,
+    approval_status: 'pending' as const,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
   }
 
-  return <GoatTracker user={user} userProfile={userProfile} />
+  // Check if user needs approval
+  if (profile.approval_status === 'pending' || !profile.is_active) {
+    return <PendingApproval userEmail={user.email || ''} />
+  }
+
+  return <GoatTracker user={user} userProfile={profile} />
 }

@@ -9,11 +9,10 @@ interface Props {
   onClose: () => void
   onSuccess: () => void
   userId: string
-  farmId: string
   editGoat?: Goat
 }
 
-export default function GoatForm({ onClose, onSuccess, userId, farmId, editGoat }: Props) {
+export default function GoatForm({ onClose, onSuccess, userId, editGoat }: Props) {
   const isEditing = !!editGoat
   const [formData, setFormData] = useState({
     tagNumber: editGoat?.tag_number || '',
@@ -77,7 +76,7 @@ export default function GoatForm({ onClose, onSuccess, userId, farmId, editGoat 
             .eq('id', editGoat!.id)
         : await supabase
             .from('goats')
-            .insert({ ...goatData, created_by: userId, farm_id: farmId })
+            .insert({ ...goatData, created_by: userId })
 
       if (error) throw error
       onSuccess()

@@ -16,7 +16,7 @@ import BreedingCard from './BreedingCard'
 import BreedingModal from './BreedingModal'
 import NotificationBell from './NotificationBell'
 import NotificationDashboard from './NotificationDashboard'
-import UserManagement from './UserManagement'
+import UserApproval from './UserApproval'
 
 interface Props {
   user: User
@@ -210,19 +210,18 @@ export default function GoatTracker({ user, userProfile }: Props) {
               <Bell size={16} />
               Notifications
             </button>
-            {canPerformAction(userProfile.role, 'canManageUsers') && (
-              <button
-                onClick={() => setActiveTab('users')}
-                className={`px-4 py-2 rounded-lg transition flex items-center gap-2 ${
-                  activeTab === 'users' 
-                    ? 'bg-green-600 text-white' 
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-              >
-                <Users size={16} />
-                Users
-              </button>
-            )}
+
+            <button
+              onClick={() => setActiveTab('users')}
+              className={`px-4 py-2 rounded-lg transition flex items-center gap-2 ${
+                activeTab === 'users' 
+                  ? 'bg-green-600 text-white' 
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              <Users size={16} />
+              Users
+            </button>
             <button
               onClick={() => setActiveTab('analytics')}
               className={`px-4 py-2 rounded-lg transition flex items-center gap-2 ${
@@ -337,14 +336,7 @@ export default function GoatTracker({ user, userProfile }: Props) {
             breedingRecords={breedingRecords}
           />
         ) : activeTab === 'users' ? (
-          <UserManagement 
-            currentUser={userProfile} 
-            onUpdate={() => {
-              fetchGoats()
-              fetchHealthRecords()
-              fetchBreedingRecords()
-            }}
-          />
+          <UserApproval />
         ) : (
           <Analytics goats={goats} healthRecords={healthRecords} />
         )}
@@ -362,7 +354,7 @@ export default function GoatTracker({ user, userProfile }: Props) {
               fetchGoats()
             }}
             userId={user.id}
-            farmId={userProfile.farm_id}
+
             editGoat={editingGoat || undefined}
           />
         )}
