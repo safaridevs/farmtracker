@@ -12,7 +12,7 @@ import { useRouter } from 'next/navigation'
 import GoatForm from './GoatForm'
 import GoatCard from './GoatCard'
 import Analytics from './Analytics'
-import BreedingCard from './BreedingCard'
+import IntegratedBreedingSystem from './IntegratedBreedingSystem'
 import BreedingModal from './BreedingModal'
 import NotificationBell from './NotificationBell'
 import NotificationDashboard from './NotificationDashboard'
@@ -176,62 +176,62 @@ export default function GoatTracker({ user, userProfile }: Props) {
           </div>
           
           {/* Tab Navigation */}
-          <div className="flex gap-1 mt-4">
+          <div className="flex gap-1 mt-4 overflow-x-auto pb-2">
             <button
               onClick={() => setActiveTab('goats')}
-              className={`px-4 py-2 rounded-lg transition flex items-center gap-2 ${
+              className={`px-3 py-2 rounded-lg transition flex items-center gap-1 whitespace-nowrap text-sm ${
                 activeTab === 'goats' 
                   ? 'bg-green-600 text-white' 
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
-              <Heart size={16} />
-              Goats
+              <Heart size={14} />
+              <span className="hidden sm:inline">Goats</span>
             </button>
             <button
               onClick={() => setActiveTab('breeding')}
-              className={`px-4 py-2 rounded-lg transition flex items-center gap-2 ${
+              className={`px-3 py-2 rounded-lg transition flex items-center gap-1 whitespace-nowrap text-sm ${
                 activeTab === 'breeding' 
                   ? 'bg-green-600 text-white' 
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
-              <Baby size={16} />
-              Breeding
+              <Baby size={14} />
+              <span className="hidden sm:inline">Breeding</span>
             </button>
             <button
               onClick={() => setActiveTab('notifications')}
-              className={`px-4 py-2 rounded-lg transition flex items-center gap-2 ${
+              className={`px-3 py-2 rounded-lg transition flex items-center gap-1 whitespace-nowrap text-sm ${
                 activeTab === 'notifications' 
                   ? 'bg-green-600 text-white' 
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
-              <Bell size={16} />
-              Notifications
+              <Bell size={14} />
+              <span className="hidden sm:inline">Alerts</span>
             </button>
 
             <button
               onClick={() => setActiveTab('users')}
-              className={`px-4 py-2 rounded-lg transition flex items-center gap-2 ${
+              className={`px-3 py-2 rounded-lg transition flex items-center gap-1 whitespace-nowrap text-sm ${
                 activeTab === 'users' 
                   ? 'bg-green-600 text-white' 
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
-              <Users size={16} />
-              Users
+              <Users size={14} />
+              <span className="hidden sm:inline">Users</span>
             </button>
             <button
               onClick={() => setActiveTab('analytics')}
-              className={`px-4 py-2 rounded-lg transition flex items-center gap-2 ${
+              className={`px-3 py-2 rounded-lg transition flex items-center gap-1 whitespace-nowrap text-sm ${
                 activeTab === 'analytics' 
                   ? 'bg-green-600 text-white' 
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
-              <BarChart3 size={16} />
-              Analytics
+              <BarChart3 size={14} />
+              <span className="hidden sm:inline">Stats</span>
             </button>
           </div>
         </div>
@@ -328,7 +328,7 @@ export default function GoatTracker({ user, userProfile }: Props) {
             </div>
           </>
         ) : activeTab === 'breeding' ? (
-          <BreedingCard goats={goats} onUpdate={fetchGoats} />
+          <IntegratedBreedingSystem goats={goats} onUpdate={fetchGoats} />
         ) : activeTab === 'notifications' ? (
           <NotificationDashboard 
             goats={goats} 
